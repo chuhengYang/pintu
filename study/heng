@@ -1,0 +1,178 @@
+#include "stdafx.h"
+#include "entrance.h"
+HDC         hdc;
+HINSTANCE  hInst;
+HDC         mdc;
+HBITMAP     hbmp;
+HPEN        hpen;
+int         BUPT;
+int a, b, c, d, e, f, g, h, i = 9, l = 0;
+ATOM MyRegisterClass(HINSTANCE hInstance)
+{
+	static TCHAR szClassName[] = TEXT("HelloWin");  //窗口类名
+	HWND     hwnd;  //窗口句柄
+	WNDCLASS wndclass;  //窗口类
+	/**********第①步：注册窗口类**********/
+	//为窗口类的各个字段赋值
+	wndclass.style = CS_HREDRAW | CS_VREDRAW;  //窗口风格
+	wndclass.lpfnWndProc = WndProc; //窗口过程
+	wndclass.cbClsExtra = 0;  //暂时不需要理解
+	wndclass.cbWndExtra = 0;  //暂时不需要理解
+	wndclass.hInstance = hInstance;  //当前窗口句柄
+	wndclass.hIcon = LoadIcon(NULL, IDI_APPLICATION);  //窗口图标
+	wndclass.hCursor = LoadCursor(NULL, IDC_ARROW);  //鼠标样式
+	wndclass.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);  //窗口背景画刷
+	wndclass.lpszMenuName = NULL;  //窗口菜单
+	wndclass.lpszClassName = szClassName;  //窗口类名
+	//注册窗口
+	return RegisterClass(&wndclass);
+}
+BOOL InitInstance(HINSTANCE hInstance, int iCmdShow)
+{
+	hInst = hInstance; // 将实例句柄存储在全局变量中
+	BUPT = iCmdShow;
+	static TCHAR szClassName[] = TEXT("HelloWin");  //窗口类名
+	TCHAR szText[20] = TEXT("第一关");
+	TCHAR BB[20] = TEXT("放弃");
+	/*****第②步：创建窗口(并让窗口显示出来)*****/
+	HWND hwnd = CreateWindow(
+		szClassName,  //窗口类的名字
+		TEXT("游戏"),  //窗口标题（出现在标题栏）
+		WS_OVERLAPPEDWINDOW,  //窗口风格
+		CW_USEDEFAULT,  //初始化时x轴的位置
+		CW_USEDEFAULT,  //初始化时y轴的位置
+		416,  //窗口宽度
+		550,  //窗口高度
+		NULL,  //父窗口句柄
+		NULL,  //窗口菜单句柄
+		hInstance,  //当前窗口的句柄
+		NULL  //不使用该值
+	);
+	if (!hwnd) {
+		return FALSE;
+	}
+	//显示窗口
+	ShowWindow(hwnd, iCmdShow);
+	//更新（绘制）窗口
+	UpdateWindow(hwnd);
+	hpen = CreatePen(PS_SOLID, 1, RGB(112, 197, 205));
+	hdc = GetDC(hwnd);
+	mdc = CreateCompatibleDC(hdc);
+	hbmp = (HBITMAP)LoadImage(NULL, TEXT("1.bmp"), IMAGE_BITMAP, 300, 300, LR_LOADFROMFILE);
+	SelectObject(mdc, hbmp);
+	SelectObject(hdc, hpen);
+	srand((unsigned int)time(NULL));
+	a = rand() % 8;
+	b = rand() % 8; while (b == a) { b = rand() % 8; }
+	c = rand() % 8; while (c == a || c == b) { c = rand() % 8; }
+	d = rand() % 8; while (d == c || d == b || d == a) { d = rand() % 8; }
+	e = rand() % 8; while (e == a || e == b || e == c || e == d) { e = rand() % 8; }
+	f = rand() % 8; while (f == a || f == b || f == c || f == d || f == e) { f = rand() % 8; }
+	g = rand() % 8; while (g == a || g == b || g == c || g == d || g == e || g == f) { g = rand() % 8; }
+	h = rand() % 8; while (h == a || h == b || h == c || h == d || h == e || h == f || h == g) { h = rand() % 8; }
+	myPaint(hdc, mdc, hpen, a, b, c, d, e, f, g, h, i);
+	TextOut(hdc, 177, 18, szText, wcslen(szText));
+	TextOut(hdc, 85, 420, BB, wcslen(BB));
+	return TRUE;
+}
+LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
+	PAINTSTRUCT ps;
+	RECT        rect;
+	TCHAR AA[20] = TEXT("成功");
+	TCHAR BB[20] = TEXT("放弃");
+	TCHAR CC[20] = TEXT("失败");
+	TCHAR DD[20] = TEXT("下一关");
+	int         x, y, z = 0;
+	switch (message) {
+		//窗口绘制消息
+	case WM_LBUTTONDOWN:
+		hdc = GetDC(hwnd);
+		x = LOWORD(lParam);
+		y = HIWORD(lParam);
+		if (x >= 50 && x <= 150 && y >= 50 && y <= 150) {
+			if (c == 9) { c = a; a = 9; z++; }
+			else if (d == 9) { d = a; a = 9; z++; }
+		}
+		if (x >= 150 && x <= 250 && y >= 150 && y <= 250) {
+			if (c == 9) { c = b; b = 9; z++; }
+			else if (d == 9) { d = b; b = 9; z++; }
+			else if (g == 9) { g = b; b = 9; z++; }
+			else if (h == 9) { h = b; b = 9; z++; }
+		}
+		if (x >= 150 && x <= 250 && y >= 50 && y <= 150) {
+			if (a == 9) { a = c; c = 9; z++; }
+			else if (b == 9) { b = c; c = 9; z++; }
+			else if (e == 9) { e = c; c = 9; z++; }
+		}
+		if (x >= 50 && x <= 150 && y >= 150 && y <= 250) {
+			if (a == 9) { a = d; d = 9; z++; }
+			else if (b == 9) { b = d; d = 9; z++; }
+			else if (f == 9) { f = d; d = 9; z++; }
+		}
+		if (x >= 250 && x <= 350 && y >= 50 && y <= 150) {
+			if (c == 9) { c = e; e = 9; z++; }
+			else if (h == 9) { h = e; e = 9; z++; }
+		}
+		if (x >= 50 && x <= 150 && y >= 250 && y <= 350) {
+			if (d == 9) { d = f; f = 9; z++; }
+			else if (g == 9) { g = f; f = 9; z++; }
+		}
+		if (x >= 150 && x <= 250 && y >= 250 && y <= 350) {
+			if (f == 9) { f = g; g = 9; z++; }
+			else if (b == 9) { b = g; g = 9; z++; }
+			else if (i == 9) { i = g; g = 9; z++; }
+		}
+		if (x >= 250 && x <= 350 && y >= 150 && y <= 250) {
+			if (e == 9) { e = h; h = 9; z++; }
+			else if (b == 9) { b = h; h = 9; z++; }
+			else if (i == 9) { i = h; h = 9; z++; }
+		}
+		if (x >= 250 && x <= 350 && y >= 250 && y <= 350) {
+			if (h == 9) { h = i; i = 9; z++; }
+			else if (g == 9) { g = i; i = 9; z++; }
+		}
+		if (x >= 50 && x <= 150 && y >= 380 && y <= 480) {
+			a = 0; b = 4; c = 3; d = 1; e = 6; f = 2; g = 5; h = 7; l = 1, i = 8;
+			TextOut(hdc, 185, 420, CC, wcslen(CC));
+			TextOut(hdc, 177, 18, DD, wcslen(DD));
+
+		}
+		if (a == 0 && b == 4 && c == 3 && d == 1 && e == 6 && f == 2 && g == 5 && h == 7 && i == 9 && l == 0) {
+			TextOut(hdc, 185, 420, AA, wcslen(AA));
+			TextOut(hdc, 177, 18, DD, wcslen(DD));
+			i = 8;
+		}
+		myPaint(hdc, mdc, hpen, a, b, c, d, e, f, g, h, i);
+
+		if (i == 8) {
+			Sleep(2000);
+			MyRegisterClass2(hInst);
+			if (!(InitInstance2(hInst, BUPT)))
+			{
+				return FALSE;
+			}
+			
+		}
+		break;
+	case WM_PAINT:
+		hdc = BeginPaint(hwnd, &ps);
+		myPaint(hdc, mdc, hpen, a, b, c, d, e, f, g, h, i);
+		if (l == 1) {
+			TextOut(hdc, 185, 420, CC, wcslen(CC));
+		}
+		EndPaint(hwnd, &ps);
+		break;
+		//窗口销毁消息
+	case WM_DESTROY:
+		DeleteDC(mdc);
+		DeleteObject(hbmp);
+		DeleteObject(hpen);
+		PostQuitMessage(0);
+		break;
+
+	case WM_CLOSE:
+		break;
+	}
+	return DefWindowProc(hwnd, message, wParam, lParam);
+}
+
